@@ -1,9 +1,17 @@
 /*
-James Cryer / Huddle 2014
+James Cryer / Huddle 2015
 URL: https://github.com/Huddle/Resemble.js
 */
 
-(function(_this){
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define([], factory);
+	} else if (typeof module === 'object' && module.exports) {
+		module.exports = factory();
+	} else {
+		root.resemble = factory();
+	}
+}(this, function () {
 	'use strict';
 
 	var pixelTransparency = 1;
@@ -63,7 +71,7 @@ URL: https://github.com/Huddle/Resemble.js
 	var document = typeof window != "undefined" ? window.document : {};
 	var documentDomainRegex = new RegExp('^https?://' + document.domain);
 
-	_this['resemble'] = function( fileData ){
+	var resemble = function( fileData ){
 
 		var data = {};
 		var images = [];
@@ -80,6 +88,7 @@ URL: https://github.com/Huddle/Resemble.js
 
 		var ignoreAntialiasing = false;
 		var ignoreColors = false;
+		var scaleToSameSize = false;
 
 		function triggerDataUpdate(){
 			var len = updateCallbackArray.length;
@@ -107,6 +116,7 @@ URL: https://github.com/Huddle/Resemble.js
 			var redTotal = 0;
 			var greenTotal = 0;
 			var blueTotal = 0;
+			var alphaTotal = 0;
 			var brightnessTotal = 0;
 
 			loop(height, width, function(verticalPos, horizontalPos){
@@ -114,6 +124,7 @@ URL: https://github.com/Huddle/Resemble.js
 				var red = sourceImageData[offset];
 				var green = sourceImageData[offset + 1];
 				var blue = sourceImageData[offset + 2];
+				var alpha = sourceImageData[offset + 3];
 				var brightness = getBrightness(red,green,blue);
 
 				pixelCount++;
@@ -121,12 +132,14 @@ URL: https://github.com/Huddle/Resemble.js
 				redTotal += red / 255 * 100;
 				greenTotal += green / 255 * 100;
 				blueTotal += blue / 255 * 100;
+				alphaTotal += (255 - alpha) / 255 * 100;
 				brightnessTotal += brightness / 255 * 100;
 			});
 
 			data.red = Math.floor(redTotal / pixelCount);
 			data.green = Math.floor(greenTotal / pixelCount);
 			data.blue = Math.floor(blueTotal / pixelCount);
+			data.alpha = Math.floor(alphaTotal / pixelCount);
 			data.brightness = Math.floor(brightnessTotal / pixelCount);
 
 			triggerDataUpdate();
@@ -136,14 +149,33 @@ URL: https://github.com/Huddle/Resemble.js
 			var fileReader;
 			var hiddenImage = new Image();
 			
-			if (httpRegex.test(fileData) && !documentDomainRegex.test(fileData)) {
-				hiddenImage.setAttribute('crossorigin', 'anonymous');
+			if (!(typeof fileData === 'string' 
+				&& fileData.length > 6 
+				&& fileData.charAt(4)===':' 
+				&& fileData.charAt(5)!=='/'
+			)) {
+				if (httpRegex.test(fileData) && !documentDomainRegex.test(fileData)) {
+					hiddenImage.setAttribute('crossorigin', 'anonymous');
+				}
 			}
+			
+			hiddenImage.onerror = function () { 
+				hiddenImage.onerror = null; //fixes pollution between calls
+				images.push({ error : "Image load error."});
+				callback(); 
+			};
 
 			hiddenImage.onload = function() {
+				hiddenImage.onload = null; //fixes pollution between calls
 
 				var hiddenCanvas =  document.createElement('canvas');
 				var imageData;
+
+				if( scaleToSameSize && images.length == 1 ){
+					hiddenImage.width 	= images[0].width;
+					hiddenImage.height 	= images[0].height;
+				}
+
 				var width = hiddenImage.width;
 				var height = hiddenImage.height;
 
@@ -159,7 +191,7 @@ URL: https://github.com/Huddle/Resemble.js
 
 			if (typeof fileData === 'string') {
 				hiddenImage.src = fileData;
-				if (hiddenImage.complete) {
+				if (hiddenImage.complete && hiddenImage.naturalWidth > 0) {
 					hiddenImage.onload();
 				}
 			} else if (typeof fileData.data !== 'undefined'
@@ -391,7 +423,7 @@ URL: https://github.com/Huddle/Resemble.js
 				diffBounds.right = Math.max(x, diffBounds.right);
 				diffBounds.top = Math.min(y, diffBounds.top);
 				diffBounds.bottom = Math.max(y, diffBounds.bottom);
-			}
+			};
 
 			var time = Date.now();
 
@@ -457,7 +489,8 @@ URL: https://github.com/Huddle/Resemble.js
 
 			});
 
-			data.misMatchPercentage = (mismatchCount / (height*width) * 100).toFixed(2);
+			data.rawMisMatchPercentage = (mismatchCount / (height*width) * 100);
+			data.misMatchPercentage = data.rawMisMatchPercentage.toFixed(2);
 			data.diffBounds = diffBounds;
 			data.analysisTime = Date.now() - time;
 
@@ -523,6 +556,12 @@ URL: https://github.com/Huddle/Resemble.js
 				var width;
 				var height;
 				if(images.length === 2){
+					if( images[0].error || images[1].error ){
+						data = {};
+						data.error = images[0].error ?  images[0].error : images[1].error;
+						triggerDataUpdate();
+						return;
+					}
 					width = images[0].width > images[1].width ? images[0].width : images[1].width;
 					height = images[0].height > images[1].height ? images[0].height : images[1].height;
 
@@ -556,14 +595,26 @@ URL: https://github.com/Huddle/Resemble.js
 			}
 
 			var self = {
+				scaleToSameSize: function(){
+					scaleToSameSize = true;
+
+					if(hasMethod) { param(); }
+					return self;
+				},
+				useOriginalSize: function(){
+					scaleToSameSize = false;
+
+					if(hasMethod) { param(); }
+					return self;
+				},
 				ignoreNothing: function(){
 
-					tolerance.red = 16;
-					tolerance.green = 16;
-					tolerance.blue = 16;
-					tolerance.alpha = 16;
-					tolerance.minBrightness = 16;
-					tolerance.maxBrightness = 240;
+					tolerance.red = 0;
+					tolerance.green = 0;
+					tolerance.blue = 0;
+					tolerance.alpha = 0;
+					tolerance.minBrightness = 0;
+					tolerance.maxBrightness = 255;
 
 					ignoreAntialiasing = false;
 					ignoreColors = false;
@@ -633,7 +684,7 @@ URL: https://github.com/Huddle/Resemble.js
 
 	};
 
-	_this['resemble'].outputSettings = function(options){
+	resemble.outputSettings = function(options){
 		var key;
 		var undefined;
 
@@ -656,4 +707,5 @@ URL: https://github.com/Huddle/Resemble.js
 		return this;
 	};
 
-}(this));
+	return resemble;
+}));

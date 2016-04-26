@@ -44,6 +44,7 @@ $(function(){
 			$('#red').css('width',data.red+'%');
 			$('#green').css('width',data.green+'%');
 			$('#blue').css('width',data.blue+'%');
+			$('#alpha').css('width',data.alpha+'%');
 			$('#brightness').css('width',data.brightness+'%');
 		});
 
@@ -113,6 +114,14 @@ $(function(){
 		else
 		if($this.is('#antialising')){
 			resembleControl.ignoreAntialiasing();
+		}
+		else
+		if($this.is('#same-size')){
+			resembleControl.scaleToSameSize();
+		}
+		else
+		if($this.is('#original-size')){
+			resembleControl.useOriginalSize();
 		}
 		else
 		if($this.is('#pink')){
