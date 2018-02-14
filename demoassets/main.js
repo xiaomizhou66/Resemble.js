@@ -60,7 +60,23 @@ $(function(){
 		$('#image-diff').html(diffImage);
 
 		$(diffImage).click(function(){
-			window.open(diffImage.src, '_blank');
+			var w = window.open("about:blank", "_blank");
+			var html = w.document.documentElement;
+			var body = w.document.body;
+
+			html.style.margin = 0;
+			html.style.padding = 0;
+			body.style.margin = 0;
+			body.style.padding = 0;
+
+			var img = w.document.createElement("img");
+			img.src = diffImage.src;
+			img.alt = "image diff";
+			img.style.maxWidth = "100%";
+			img.addEventListener("click", function() {
+				this.style.maxWidth = this.style.maxWidth === "100%" ? "" : "100%";
+			});
+			body.appendChild(img);
 		});
 
 		$('.buttons').show();
@@ -134,86 +150,87 @@ $(function(){
 		}
 		else
 		if($this.is('#pink')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				errorColor: {
 					red: 255,
 					green: 0,
 					blue: 255
 				}
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#yellow')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				errorColor: {
 					red: 255,
 					green: 255,
 					blue: 0
 				}
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#flat')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				errorType: 'flat'
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#movement')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				errorType: 'movement'
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#flatDifferenceIntensity')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				errorType: 'flatDifferenceIntensity'
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#movementDifferenceIntensity')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				errorType: 'movementDifferenceIntensity'
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#diffOnly')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				errorType: 'diffOnly'
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#opaque')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				transparency: 1
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#transparent')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				transparency: 0.3
-			});
-			resembleControl.repaint();
+			}).repaint();
 		}
 		else
 		if($this.is('#boundingBox')){
-			resemble.outputSettings({
+			resembleControl.outputSettings({
 				boundingBox: {
-					left: $("#x1").val(),
-					top: $("#y1").val(),
-					right: $("#x2").val(),
-					bottom: $("#y2").val()
+					left: $("#bounding-box-x1").val(),
+					top: $("#bounding-box-y1").val(),
+					right: $("#bounding-box-x2").val(),
+					bottom: $("#bounding-box-y2").val()
 				}
-			});
-			resembleControl.repaint();
+			}).repaint();
+			$this.removeClass('active');
+		}
+		if($this.is('#ignoredBox')){
+			resembleControl.outputSettings({
+				ignoredBox: {
+					left: $("#ignored-box-x1").val(),
+					top: $("#ignored-box-y1").val(),
+					right: $("#ignored-box-x2").val(),
+					bottom: $("#ignored-box-y2").val()
+				}
+			}).repaint();
 			$this.removeClass('active');
 		}
 	});

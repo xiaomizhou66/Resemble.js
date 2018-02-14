@@ -75,8 +75,8 @@ resemble.outputSettings({
   largeImageThreshold: 1200,
   useCrossOrigin: false,
   outputDiff: true
-});
-// resembleControl.repaint();
+})
+// .repaint();
 ```
 
 It is possible to narrow down the area of comparison, by specifying a bounding box measured in pixels from the top left:
@@ -89,8 +89,22 @@ resemble.outputSettings({
     right: 200,
     bottom: 600
   }
-});
-// resembleControl.repaint();
+})
+// .repaint();
+```
+
+You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left:
+
+```javascript
+resemble.outputSettings({
+  ignoredBox: {
+    left: 100,
+    top: 200,
+    right: 200,
+    bottom: 600
+  }
+})
+// .repaint();
 ```
 
 By default, the comparison algorithm skips pixels when the image width or height is larger than 1200 pixels. This is there to mitigate performance issues.
@@ -98,6 +112,52 @@ By default, the comparison algorithm skips pixels when the image width or height
 You can modify this behaviour by setting the `largeImageThreshold` option to a different value. Set it to **0** to switch it off completely.
 
 `useCrossOrigin` is true by default, you might need to set it to false if you're using [Data URIs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs).
+
+### Single callback api
+
+The resemble.compare API provides a convenience function that is used as follows:
+
+``` js
+const compare = require('resemblejs').compare;
+
+function getDiff(){
+
+const options = {
+  output: {
+    errorColor: {
+      red: 255,
+      green: 0,
+      blue: 255
+    },
+    errorType: 'movement',
+    transparency: 0.3,
+    largeImageThreshold: 1200,
+    useCrossOrigin: false,
+    outputDiff: true
+  },
+  scaleToSameSize: true,
+  ignore: ['nothing', 'less', 'antialiasing', 'colors', 'alpha'],
+};
+// The parameters can be Node Buffers
+// data is the same as usual with an additional getBuffer() function
+compare(image1, image2, options, function (err, data) {
+	if (err) {
+		console.log('An error!')
+	} else {
+		console.log(data);
+		/*
+		{
+		  misMatchPercentage : 100, // %
+		  isSameDimensions: true, // or false
+		  dimensionDifference: { width: 0, height: -1 }, // defined if dimensions are not the same
+		  getImageDataUrl: function(){}
+		}
+		*/
+
+	}
+});
+}
+```
 
 ### Node.js
 
@@ -117,19 +177,44 @@ npm install canvas
 
 #### Usage
 
-The API under Node is the same as on the browser with one addition, a promise based `compareImage` convenience function that is used as follows:
+The API under Node is the same as on the `resemble.compare` but promise based:
 
 ``` js
-const compareImage = require('resemblejs/compareImages');
+const compareImages = require('resemblejs/compareImages');
+const fs = require("mz/fs");
 
+async function getDiff(){
+
+const options = {
+  output: {
+    errorColor: {
+      red: 255,
+      green: 0,
+      blue: 255
+    },
+    errorType: 'movement',
+    transparency: 0.3,
+    largeImageThreshold: 1200,
+    useCrossOrigin: false,
+    outputDiff: true
+  },
+  scaleToSameSize: true,
+  ignore: ['nothing', 'less', 'antialiasing', 'colors', 'alpha'],
+};
 // The parameters can be Node Buffers
 // data is the same as usual with an additional getBuffer() function
 const data = await compareImages(
-	fs.readFileSync('./demoassets/People.jpg'),
-	fs.readFileSync('./demoassets/People2.jpg')
+	await fs.readFile('./demoassets/People.jpg'),
+	await fs.readFile('./demoassets/People2.jpg'),
+	options
 );
 
-fs.writeFileSync('./output.png', data.getBuffer());
+await fs.writeFile('./output.png', data.getBuffer());
+
+}
+
+getDiff();
+
 ```
 
 #### Tests
