@@ -14,15 +14,15 @@
 
 <hr />
 
-### Get it
+### Get it 安装
 
 `npm install resemblejs`
 
 `bower install resemblejs`
 
-### Example
+### Example 例子
 
-Retrieve basic analysis on an image:
+检索图像的基本分析：
 
 ```javascript
 var api = resemble(fileData).onComplete(function(data) {
@@ -38,7 +38,7 @@ var api = resemble(fileData).onComplete(function(data) {
 });
 ```
 
-Use resemble to compare two images:
+使用 resemble 比较两个图像：
 
 ```javascript
 var diff = resemble(file)
@@ -57,14 +57,14 @@ var diff = resemble(file)
     });
 ```
 
-Scale second image to dimensions of the first one:
+将第二个图像缩放到第一个图像的尺寸：
 
 ```javascript
 //diff.useOriginalSize();
 diff.scaleToSameSize();
 ```
 
-You can also change the comparison method after the first analysis:
+您还可以在第一次分析后更改比较方法：
 
 ```javascript
 // diff.ignoreNothing();
@@ -73,7 +73,7 @@ You can also change the comparison method after the first analysis:
 diff.ignoreAntialiasing();
 ```
 
-And change the output display style:
+并更改输出显示样式：
 
 ```javascript
 resemble.outputSettings({
@@ -91,7 +91,7 @@ resemble.outputSettings({
 // .repaint();
 ```
 
-It is possible to narrow down the area of comparison, by specifying a bounding box measured in pixels from the top left:
+通过指定从左上角以像素为单位测量的边界框，可以缩小比较区域：
 
 ```javascript
 const box = {
@@ -107,7 +107,7 @@ resemble.outputSettings({ boundingBox: box });
 resemble.outputSettings({ boundingBoxes: [box1, box2] });
 ```
 
-You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left:
+您还可以通过从左上角指定排除区域（以像素为单位）来从比较中排除部分图像：
 
 ```javascript
 const box = {
@@ -123,11 +123,11 @@ resemble.outputSettings({ ignoredBox: box });
 resemble.outputSettings({ ignoredBoxes: [box1, box2] });
 ```
 
-By default, the comparison algorithm skips pixels when the image width or height is larger than 1200 pixels. This is there to mitigate performance issues.
+默认情况下，当图像宽度或高度大于1200像素时，比较算法会跳过像素。 这可以缓解性能问题。
 
-You can modify this behaviour by setting the `largeImageThreshold` option to a different value. Set it to **0** to switch it off completely.
+您可以通过将`largeImageThreshold`选项设置为其他值来修改此行为。 将其设置为** 0 **以完全关闭它。
 
-Resemble.js also supports Data URIs as strings:
+Resemble.js还支持数据URI作为字符串：
 
 ```javascript
 resemble.outputSettings({ useCrossOrigin: false });
@@ -138,7 +138,7 @@ var diff = resemble("data:image/jpeg;base64,/9j/4AAQSkZJRgAB...").compareTo(
 
 `useCrossOrigin` is true by default, you might need to set it to false if you're using [Data URIs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs).
 
-If you'd like resemble to return early:
+如果你想像早期那样的旧方式使用 resemble：
 
 ```javascript
 resemble(img1)
@@ -151,21 +151,21 @@ resemble(img1)
 
 ### Single callback api
 
-The resemble.compare API provides a convenience function that is used as follows:
+resemble.compare API提供了一个方便的功能，使用如下：
 
 ```js
 const compare = require("resemblejs").compare;
 
 function getDiff() {
     const options = {
-        // stop comparing once determined to be > 5% non-matching; this will
-        // also enable compare-only mode and no output image will be rendered;
-        // the combination of these results in a significant speed-up in batch processing
+          //停止比较一旦确定> 5％不匹配; 这将
+         //也启用仅比较模式，不会渲染输出图像;
+         //这些组合可以显着提高批处理速度
         returnEarlyThreshold: 5
     };
 
-    // The parameters can be Node Buffers
-    // data is the same as usual with an additional getBuffer() function
+     //参数可以是Node Buffers
+     //数据与通常使用额外的getBuffer（）函数相同
     compare(image1, image2, options, function(err, data) {
         if (err) {
             console.log("An error!");
@@ -175,7 +175,7 @@ function getDiff() {
             {
             misMatchPercentage : 100, // %
             isSameDimensions: true, // or false
-            dimensionDifference: { width: 0, height: -1 }, // defined if dimensions are not the same
+            dimensionDifference: { width: 0, height: -1 }, //定义维度是否不相同
             getImageDataUrl: function(){}
             }
             */
@@ -188,7 +188,7 @@ function getDiff() {
 
 #### Usage
 
-The API under Node is the same as on the `resemble.compare` but promise based:
+Node下的API与`resemble.compare`上的API相同，但基于promise：
 
 ```js
 const compareImages = require("resemblejs/compareImages");
@@ -212,8 +212,8 @@ async function getDiff() {
         ignore: "antialiasing"
     };
 
-    // The parameters can be Node Buffers
-    // data is the same as usual with an additional getBuffer() function
+    //参数可以是Node Buffers
+     //数据与通常使用额外的getBuffer（）函数相同
     const data = await compareImages(
         await fs.readFile("./your-image-path/People.jpg"),
         await fs.readFile("./your-image-path/People2.jpg"),
@@ -228,26 +228,26 @@ getDiff();
 
 #### Tests
 
-To run the tests on Node (using Jest), type:
+要在Node上运行测试（使用Jest），请键入：
 
 ```bash
 npm run test
 ```
 
-There are also some in-browser tests. To run these install and run a http-server such as [http-server](https://github.com/indexzero/http-server) from the root of the project. Then in the browser, navigate to `localhost:8080/chai-tests/test.html`, open up the developer console to see the results.
+还有一些浏览器内测试。 要运行这些安装并从项目的根目录运行http服务器，如[http-server](https://github.com/indexzero/http-server)。 然后在浏览器中，导航到 `localhost:8080/chai-tests/test.html，打开开发人员控制台以查看结果。
 
 #### Dockerfile
 
-For convenience I've added a simple Dockerfile to run the NodeJS tests in an Ubuntu container
+为方便起见，我添加了一个简单的Dockerfile来在Ubuntu容器中运行NodeJS测试
 
 ```bash
 docker build -t rsmbl/resemble .
 docker run rsmbl/resemble
 ```
 
-#### Reference to academic papers
+#### Reference to academic papers 参考学术论文
 
-As people have asked in the past, Resemble.js hasn't knowingly implemented any published ideas. RGBA colour comparison is simple and straightforward when working with the Canvas API. The antialiasing algorithm was developed at [Huddle](https://github.com/HuddleEng) over several days of trial-and-error using various false-positive results from PhantomCSS tests.
+正如人们过去所问的那样，Resemble.js并没有故意实施任何已发表的想法。 使用Canvas API时，RGBA颜色比较简单明了。 抗混叠算法是在[Huddle](https://github.com/HuddleEng) 中使用PhantomCSS测试的各种假阳性结果进行了几天的反复试验。
 
 ---
 
